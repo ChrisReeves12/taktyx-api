@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaktyxAPI.DTO", "TaktyxAPI.DTO\TaktyxAPI.DTO.csproj", "{89B83C8D-A014-44ED-ADF9-C12ABE2CBEC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaktyxAPI.Data", "TaktyxAPI.Data\TaktyxAPI.Data.csproj", "{832A6B66-0D2D-4E88-8CCC-783D141A71A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaktyxAPI.Api", "TaktyxAPI.Api\TaktyxAPI.Api.csproj", "{46A3DC3C-C701-436A-A206-B21952ADB073}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaktyxAPI.Service", "TaktyxAPI.Service\TaktyxAPI.Service.csproj", "{ADA63C48-32BB-4794-83DA-71FCE13FD64C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89B83C8D-A014-44ED-ADF9-C12ABE2CBEC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89B83C8D-A014-44ED-ADF9-C12ABE2CBEC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89B83C8D-A014-44ED-ADF9-C12ABE2CBEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89B83C8D-A014-44ED-ADF9-C12ABE2CBEC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{832A6B66-0D2D-4E88-8CCC-783D141A71A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{832A6B66-0D2D-4E88-8CCC-783D141A71A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{832A6B66-0D2D-4E88-8CCC-783D141A71A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{832A6B66-0D2D-4E88-8CCC-783D141A71A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46A3DC3C-C701-436A-A206-B21952ADB073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46A3DC3C-C701-436A-A206-B21952ADB073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46A3DC3C-C701-436A-A206-B21952ADB073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46A3DC3C-C701-436A-A206-B21952ADB073}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADA63C48-32BB-4794-83DA-71FCE13FD64C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADA63C48-32BB-4794-83DA-71FCE13FD64C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADA63C48-32BB-4794-83DA-71FCE13FD64C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADA63C48-32BB-4794-83DA-71FCE13FD64C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
