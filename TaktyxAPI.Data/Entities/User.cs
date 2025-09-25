@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaktyxAPI.Data.Entities 
+namespace TaktyxAPI.Data.Entities
 {
     public class User
     {
@@ -24,11 +24,14 @@ namespace TaktyxAPI.Data.Entities
         [Required]
         [MaxLength(255)]
         public string Password { get; set; } = string.Empty;
-        
+
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiresAt { get; set; }
-        
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation properties
+        public virtual ICollection<UserSkill> UserSkills { get; set; } = new List<UserSkill>();
     }
 }
