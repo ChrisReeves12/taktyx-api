@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaktyxAPI.Data.Data;
 
@@ -11,9 +12,11 @@ using TaktyxAPI.Data.Data;
 namespace TaktyxAPI.Data.Migrations
 {
     [DbContext(typeof(TaktyxDbContext))]
-    partial class TaktyxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250925120425_AddMachineNameFields")]
+    partial class AddMachineNameFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,10 +144,6 @@ namespace TaktyxAPI.Data.Migrations
 
                     b.Property<int?>("IntegerValue")
                         .HasColumnType("int");
-
-                    b.Property<string>("MultiSelectValue")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("RadioSelectionValue")
                         .HasMaxLength(100)

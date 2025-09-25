@@ -37,6 +37,10 @@ namespace TaktyxAPI.Data.Entities
         [MaxLength(100)]
         public string? RadioSelectionValue { get; set; }
 
+        // For multi-select values (stored as JSON array)
+        [MaxLength(1000)]
+        public string? MultiSelectValue { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

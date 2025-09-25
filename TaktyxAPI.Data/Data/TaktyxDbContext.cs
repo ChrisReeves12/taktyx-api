@@ -28,6 +28,7 @@ namespace TaktyxAPI.Data.Data
 
             modelBuilder.Entity<Skill>(entity =>
             {
+                entity.HasIndex(e => e.MachineName).IsUnique();
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
             });
@@ -51,6 +52,7 @@ namespace TaktyxAPI.Data.Data
 
             modelBuilder.Entity<SkillField>(entity =>
             {
+                entity.HasIndex(e => e.MachineName).IsUnique();
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(e => e.FieldType).HasConversion<int>();

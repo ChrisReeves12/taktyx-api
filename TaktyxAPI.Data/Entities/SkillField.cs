@@ -12,7 +12,8 @@ namespace TaktyxAPI.Data.Entities
         Decimal = 4,
         RadioSelection = 5,
         DateTime = 6,
-        Boolean = 7
+        Boolean = 7,
+        MultiSelect = 8
     }
 
     public class SkillField
@@ -23,6 +24,10 @@ namespace TaktyxAPI.Data.Entities
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(50)]
+        public string MachineName { get; set; } = string.Empty;
 
         [Required]
         public int SkillId { get; set; }

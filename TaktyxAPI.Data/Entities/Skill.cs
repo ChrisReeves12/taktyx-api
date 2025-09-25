@@ -12,6 +12,10 @@ namespace TaktyxAPI.Data.Entities
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(50)]
+        public string MachineName { get; set; } = string.Empty;
+
         [Column(TypeName = "text")]
         public string Description { get; set; } = string.Empty;
 
