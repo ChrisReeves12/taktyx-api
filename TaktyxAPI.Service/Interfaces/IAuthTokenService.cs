@@ -4,7 +4,7 @@ namespace TaktyxAPI.Service.Interfaces;
 
 public interface IAuthTokenService
 {
-    public TokenDto GenerateToken(int userId, string email);
+    public TokenDto GenerateToken(int userId, string email, string role);
     public TokenValidationResultDto? ValidateToken(string token, bool validateLifetime = true);
     public RefreshTokenDto GenerateRefreshToken();
 }

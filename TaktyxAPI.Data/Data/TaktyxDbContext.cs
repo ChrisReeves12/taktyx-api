@@ -14,6 +14,8 @@ namespace TaktyxAPI.Data.Data
         public DbSet<UserSkill> UserSkills { get; set; }
         public DbSet<SkillField> SkillFields { get; set; }
         public DbSet<SkillFieldValue> SkillFieldValues { get; set; }
+        public DbSet<SkillFieldChoice> SkillFieldChoices { get; set; }
+        public DbSet<SkillFieldValueChoice> SkillFieldValueChoices { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,7 +54,7 @@ namespace TaktyxAPI.Data.Data
 
             modelBuilder.Entity<SkillField>(entity =>
             {
-                entity.HasIndex(e => e.MachineName).IsUnique();
+                entity.HasIndex(e => new { e.SkillId, e.MachineName }).IsUnique();
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(e => e.FieldType).HasConversion<int>();
@@ -77,6 +79,33 @@ namespace TaktyxAPI.Data.Data
                     .WithMany(us => us.SkillFieldValues)
                     .HasForeignKey(e => e.UserSkillId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SkillFieldChoice>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.SkillField)
+                    .WithMany(e => e.SkillFieldChoices)
+                    .HasForeignKey(e => e.SkillFieldId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SkillFieldValueChoice>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.SkillFieldValue)
+                    .WithMany(e => e.SkillFieldValueChoices)
+                    .HasForeignKey(e => e.SkillFieldValueId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.SkillFieldChoice)
+                    .WithMany()
+                    .HasForeignKey(e => e.SkillFieldChoiceId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

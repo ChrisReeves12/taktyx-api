@@ -25,6 +25,10 @@ namespace TaktyxAPI.Data.Entities
         [MaxLength(255)]
         public string Password { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(50)]
+        public string Role { get; set; } = "User"; // Default role
+
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiresAt { get; set; }
 

@@ -16,8 +16,8 @@ public class JwtTokenService : IAuthTokenService
     {
         _jwtSettings = jwtSettings;
     }
-    
-    public TokenDto GenerateToken(int userId, string email)
+
+    public TokenDto GenerateToken(int userId, string email, string role)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -26,6 +26,7 @@ public class JwtTokenService : IAuthTokenService
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, email.ToLower()),
+            new Claim(ClaimTypes.Role, role),
             new Claim("userId", userId.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
@@ -34,18 +35,19 @@ public class JwtTokenService : IAuthTokenService
         var expiresAt = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours);
 
         var token = new JwtSecurityToken(
-            issuer: _jwtSettings.Issuer, 
-            audience: _jwtSettings.Audience, 
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
             expires: expiresAt,
             signingCredentials: credentials);
 
-        return new TokenDto { 
-            Token = new JwtSecurityTokenHandler().WriteToken(token), 
+        return new TokenDto
+        {
+            Token = new JwtSecurityTokenHandler().WriteToken(token),
             ExpiresAt = expiresAt
         };
     }
-    
+
     public TokenValidationResultDto? ValidateToken(string token, bool validateLifetime = true)
     {
         try
@@ -87,7 +89,7 @@ public class JwtTokenService : IAuthTokenService
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-        
+
         return new RefreshTokenDto
         {
             RefreshToken = Convert.ToBase64String(randomNumber),

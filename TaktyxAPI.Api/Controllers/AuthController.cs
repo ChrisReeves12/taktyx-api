@@ -34,17 +34,17 @@ public class AuthController : ControllerBase
         {
             return Unauthorized();
         }
-        
+
         // Generate tokens
-        var tokenResponse = _authTokenService.GenerateToken(user.Id, user.Email);
+        var tokenResponse = _authTokenService.GenerateToken(user.Id, user.Email, user.Role);
         var refreshTokenResponse = _authTokenService.GenerateRefreshToken();
 
         user.RefreshToken = refreshTokenResponse.RefreshToken;
         user.RefreshTokenExpiresAt = refreshTokenResponse.ExpiresAt;
         user.UpdatedAt = DateTime.UtcNow;
-        
+
         await _dbContext.SaveChangesAsync();
-        
+
         return Ok(new AuthResultDto
         {
             Token = tokenResponse.Token,
@@ -63,7 +63,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized();
         }
-        
+
         // Generate new tokens
         var user = await _dbContext.Users.FindAsync(validationResult.UserId);
         if (user == null)
@@ -76,16 +76,16 @@ public class AuthController : ControllerBase
         {
             return Unauthorized();
         }
-        
-        var tokenResponse = _authTokenService.GenerateToken(validationResult.UserId, validationResult.Email);
+
+        var tokenResponse = _authTokenService.GenerateToken(validationResult.UserId, validationResult.Email, user.Role);
         var refreshTokenResponse = _authTokenService.GenerateRefreshToken();
 
         user.RefreshToken = refreshTokenResponse.RefreshToken;
         user.RefreshTokenExpiresAt = refreshTokenResponse.ExpiresAt;
         user.UpdatedAt = DateTime.UtcNow;
-        
+
         await _dbContext.SaveChangesAsync();
-        
+
         return Ok(new RefreshTokenResponseDto
         {
             RefreshToken = refreshTokenResponse.RefreshToken,

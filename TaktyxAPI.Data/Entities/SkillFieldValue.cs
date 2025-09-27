@@ -18,7 +18,7 @@ namespace TaktyxAPI.Data.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal? DecimalValue { get; set; }
 
-        [MaxLength(500)]
+        [MaxLength(300)]
         public string? TextInputValue { get; set; }
 
         [Column(TypeName = "text")]
@@ -37,10 +37,6 @@ namespace TaktyxAPI.Data.Entities
         [MaxLength(100)]
         public string? RadioSelectionValue { get; set; }
 
-        // For multi-select values (stored as JSON array)
-        [MaxLength(1000)]
-        public string? MultiSelectValue { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
@@ -50,5 +46,8 @@ namespace TaktyxAPI.Data.Entities
 
         [ForeignKey("UserSkillId")]
         public virtual UserSkill UserSkill { get; set; } = null!;
+
+        public virtual ICollection<SkillFieldValueChoice> SkillFieldValueChoices { get; set; } = 
+            new List<SkillFieldValueChoice>();
     }
 }

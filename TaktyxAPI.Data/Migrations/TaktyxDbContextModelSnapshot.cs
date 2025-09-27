@@ -76,8 +76,7 @@ namespace TaktyxAPI.Data.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("DefaultValue")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("text");
 
                     b.Property<int>("FieldType")
                         .HasColumnType("int");
@@ -105,12 +104,48 @@ namespace TaktyxAPI.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MachineName")
+                    b.HasIndex("SkillId", "MachineName")
                         .IsUnique();
 
-                    b.HasIndex("SkillId");
-
                     b.ToTable("SkillFields");
+                });
+
+            modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldChoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("MachineName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("SkillFieldId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkillFieldId");
+
+                    b.ToTable("SkillFieldChoices");
                 });
 
             modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldValue", b =>
@@ -142,10 +177,6 @@ namespace TaktyxAPI.Data.Migrations
                     b.Property<int?>("IntegerValue")
                         .HasColumnType("int");
 
-                    b.Property<string>("MultiSelectValue")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<string>("RadioSelectionValue")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -157,8 +188,8 @@ namespace TaktyxAPI.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("TextInputValue")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -175,6 +206,39 @@ namespace TaktyxAPI.Data.Migrations
                     b.HasIndex("UserSkillId");
 
                     b.ToTable("SkillFieldValues");
+                });
+
+            modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldValueChoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("SkillFieldChoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SkillFieldValueId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkillFieldChoiceId");
+
+                    b.HasIndex("SkillFieldValueId");
+
+                    b.ToTable("SkillFieldValueChoices");
                 });
 
             modelBuilder.Entity("TaktyxAPI.Data.Entities.User", b =>
@@ -215,6 +279,11 @@ namespace TaktyxAPI.Data.Migrations
 
                     b.Property<DateTime?>("RefreshTokenExpiresAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -274,6 +343,17 @@ namespace TaktyxAPI.Data.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldChoice", b =>
+                {
+                    b.HasOne("TaktyxAPI.Data.Entities.SkillField", "SkillField")
+                        .WithMany("SkillFieldChoices")
+                        .HasForeignKey("SkillFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SkillField");
+                });
+
             modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldValue", b =>
                 {
                     b.HasOne("TaktyxAPI.Data.Entities.SkillField", "SkillField")
@@ -291,6 +371,25 @@ namespace TaktyxAPI.Data.Migrations
                     b.Navigation("SkillField");
 
                     b.Navigation("UserSkill");
+                });
+
+            modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldValueChoice", b =>
+                {
+                    b.HasOne("TaktyxAPI.Data.Entities.SkillFieldChoice", "SkillFieldChoice")
+                        .WithMany()
+                        .HasForeignKey("SkillFieldChoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaktyxAPI.Data.Entities.SkillFieldValue", "SkillFieldValue")
+                        .WithMany("SkillFieldValueChoices")
+                        .HasForeignKey("SkillFieldValueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SkillFieldChoice");
+
+                    b.Navigation("SkillFieldValue");
                 });
 
             modelBuilder.Entity("TaktyxAPI.Data.Entities.UserSkill", b =>
@@ -321,7 +420,14 @@ namespace TaktyxAPI.Data.Migrations
 
             modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillField", b =>
                 {
+                    b.Navigation("SkillFieldChoices");
+
                     b.Navigation("SkillFieldValues");
+                });
+
+            modelBuilder.Entity("TaktyxAPI.Data.Entities.SkillFieldValue", b =>
+                {
+                    b.Navigation("SkillFieldValueChoices");
                 });
 
             modelBuilder.Entity("TaktyxAPI.Data.Entities.User", b =>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TaktyxAPI.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSkillsTablesFixed : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,6 +18,7 @@ namespace TaktyxAPI.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    MachineName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
@@ -28,16 +29,38 @@ namespace TaktyxAPI.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SkillFields",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    MachineName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     SkillId = table.Column<int>(type: "int", nullable: false),
                     FieldType = table.Column<int>(type: "int", nullable: false),
                     Required = table.Column<bool>(type: "bit", nullable: false),
-                    DefaultValue = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    DefaultValue = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
                 },
@@ -81,6 +104,29 @@ namespace TaktyxAPI.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SkillFieldChoices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SkillFieldId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    MachineName = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkillFieldChoices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SkillFieldChoices_SkillFields_SkillFieldId",
+                        column: x => x.SkillFieldId,
+                        principalTable: "SkillFields",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SkillFieldValues",
                 columns: table => new
                 {
@@ -89,7 +135,7 @@ namespace TaktyxAPI.Data.Migrations
                     SkillFieldId = table.Column<int>(type: "int", nullable: false),
                     UserSkillId = table.Column<int>(type: "int", nullable: false),
                     DecimalValue = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    TextInputValue = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TextInputValue = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     TextAreaValue = table.Column<string>(type: "text", nullable: true),
                     IntegerValue = table.Column<int>(type: "int", nullable: true),
                     DateTimeValue = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -116,10 +162,54 @@ namespace TaktyxAPI.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SkillFieldValueChoices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SkillFieldValueId = table.Column<int>(type: "int", nullable: false),
+                    SkillFieldChoiceId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkillFieldValueChoices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SkillFieldValueChoices_SkillFieldChoices_SkillFieldChoiceId",
+                        column: x => x.SkillFieldChoiceId,
+                        principalTable: "SkillFieldChoices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SkillFieldValueChoices_SkillFieldValues_SkillFieldValueId",
+                        column: x => x.SkillFieldValueId,
+                        principalTable: "SkillFieldValues",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_SkillFields_SkillId",
+                name: "IX_SkillFieldChoices_SkillFieldId",
+                table: "SkillFieldChoices",
+                column: "SkillFieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkillFields_SkillId_MachineName",
                 table: "SkillFields",
-                column: "SkillId");
+                columns: new[] { "SkillId", "MachineName" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkillFieldValueChoices_SkillFieldChoiceId",
+                table: "SkillFieldValueChoices",
+                column: "SkillFieldChoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkillFieldValueChoices_SkillFieldValueId",
+                table: "SkillFieldValueChoices",
+                column: "SkillFieldValueId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SkillFieldValues_SkillFieldId",
@@ -130,6 +220,18 @@ namespace TaktyxAPI.Data.Migrations
                 name: "IX_SkillFieldValues_UserSkillId",
                 table: "SkillFieldValues",
                 column: "UserSkillId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Skills_MachineName",
+                table: "Skills",
+                column: "MachineName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserSkills_SkillId",
@@ -147,6 +249,12 @@ namespace TaktyxAPI.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "SkillFieldValueChoices");
+
+            migrationBuilder.DropTable(
+                name: "SkillFieldChoices");
+
+            migrationBuilder.DropTable(
                 name: "SkillFieldValues");
 
             migrationBuilder.DropTable(
@@ -157,6 +265,9 @@ namespace TaktyxAPI.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Skills");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

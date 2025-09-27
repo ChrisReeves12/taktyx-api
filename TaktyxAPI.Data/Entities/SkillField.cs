@@ -38,7 +38,7 @@ namespace TaktyxAPI.Data.Entities
         [Required]
         public bool Required { get; set; }
 
-        [MaxLength(100)]
+        [Column(TypeName = "text")]
         public string? DefaultValue { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -49,5 +49,6 @@ namespace TaktyxAPI.Data.Entities
         public virtual Skill Skill { get; set; } = null!;
 
         public virtual ICollection<SkillFieldValue> SkillFieldValues { get; set; } = new List<SkillFieldValue>();
+        public virtual ICollection<SkillFieldChoice> SkillFieldChoices { get; set; } = new List<SkillFieldChoice>();
     }
 }
