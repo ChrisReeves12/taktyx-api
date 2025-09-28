@@ -16,23 +16,20 @@ namespace TaktyxAPI.Api.Controllers
     {
         private readonly TaktyxDbContext _dbContext;
         private readonly IPasswordService _passwordService;
+        private readonly IUserRepository _userRepository;
 
-        public UsersController(TaktyxDbContext dbContext, IPasswordService passwordService)
+        public UsersController(TaktyxDbContext dbContext, IPasswordService passwordService, 
+            IUserRepository userRepository)
         {
             _dbContext = dbContext;
             _passwordService = passwordService;
+            _userRepository = userRepository;
         }
 
         [HttpGet("exists")]
         public async Task<ActionResult> UserEmailExists([FromQuery] string email, [FromQuery] int? omitId)
         {
-            if (omitId is null && await _dbContext.Users.AnyAsync(u => u.Email.Equals(email.ToLower())) || omitId is not null
-                && await _dbContext.Users.AnyAsync(u => u.Email.Equals(email.ToLower()) && u.Id != omitId))
-            {
-                return UnprocessableEntity();
-            }
-
-            return Ok();
+            return (await _userRepository.ExistsByEmailAsync(email, omitId)) ? UnprocessableEntity() : Ok();
         }
 
         [HttpPost]
@@ -50,7 +47,7 @@ namespace TaktyxAPI.Api.Controllers
                 });
             }
 
-            var user = new User
+            var user = await _userRepository.CreateAsync(new User
             {
                 FirstName = createUserDto.FirstName,
                 LastName = createUserDto.LastName,
@@ -58,10 +55,7 @@ namespace TaktyxAPI.Api.Controllers
                 Password = _passwordService.HashPassword(createUserDto.Password),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
-            };
-
-            _dbContext.Add(user);
-            await _dbContext.SaveChangesAsync();
+            });
 
             var userDto = new UserDto
             {
@@ -80,7 +74,7 @@ namespace TaktyxAPI.Api.Controllers
         [Authorize]
         public async Task<ActionResult<UserDto>> GetUserById(int id)
         {
-            var user = await _dbContext.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -107,7 +101,7 @@ namespace TaktyxAPI.Api.Controllers
                 return Unauthorized(new { Message = "Invalid UserId" });
             }
 
-            var user = await _dbContext.Users.FindAsync(userId.Value);
+            var user = await _userRepository.GetByIdAsync(userId.Value);
             if (user == null)
             {
                 return NotFound();
@@ -140,7 +134,7 @@ namespace TaktyxAPI.Api.Controllers
                 }
 
                 // Verify the user exists
-                var user = await _dbContext.Users.FindAsync(userId);
+                var user = await _userRepository.GetByIdAsync(userId);
                 if (user == null)
                 {
                     return NotFound($"User with ID {userId} not found.");

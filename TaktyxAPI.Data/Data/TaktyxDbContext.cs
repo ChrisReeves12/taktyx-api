@@ -26,6 +26,9 @@ namespace TaktyxAPI.Data.Data
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasIndex(e => new { e.Latitude, e.Longitude })
+                    .HasDatabaseName("IX_Users_Latitude_Longitude");
             });
 
             modelBuilder.Entity<Skill>(entity =>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using TaktyxAPI.Data.Data;
@@ -12,9 +13,11 @@ using TaktyxAPI.Data.Data;
 namespace TaktyxAPI.Data.Migrations
 {
     [DbContext(typeof(TaktyxDbContext))]
-    partial class TaktyxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250928021049_AddSpatialIndexForUserLocation")]
+    partial class AddSpatialIndexForUserLocation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

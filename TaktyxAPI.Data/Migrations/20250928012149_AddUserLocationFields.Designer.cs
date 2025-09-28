@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using TaktyxAPI.Data.Data;
@@ -12,9 +13,11 @@ using TaktyxAPI.Data.Data;
 namespace TaktyxAPI.Data.Migrations
 {
     [DbContext(typeof(TaktyxDbContext))]
-    partial class TaktyxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250928012149_AddUserLocationFields")]
+    partial class AddUserLocationFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -304,9 +307,6 @@ namespace TaktyxAPI.Data.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("Latitude", "Longitude")
-                        .HasDatabaseName("IX_Users_Latitude_Longitude");
 
                     b.ToTable("Users");
                 });

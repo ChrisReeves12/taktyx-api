@@ -9,10 +9,13 @@
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+      <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\TaktyxAPI.DTO\TaktyxAPI.DTO.csproj" />
+      <ProjectReference Include="..\TaktyxAPI.Data\TaktyxAPI.Data.csproj" />
     </ItemGroup>
 
 </Project>

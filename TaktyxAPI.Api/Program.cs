@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NetTopologySuite;
 using TaktyxAPI.Data.Data;
 using TaktyxAPI.DTO;
 using TaktyxAPI.Service;
@@ -11,7 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure Entity Framework
 builder.Services.AddDbContext<TaktyxDbContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        x => x.UseNetTopologySuite())
 );
 
 builder.Services.AddControllers();
@@ -21,6 +24,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IPasswordService, BCryptPasswordService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var jwtSettings = new JwtSettingsDto();
 builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);

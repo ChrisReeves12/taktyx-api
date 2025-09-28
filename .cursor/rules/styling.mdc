@@ -4,4 +4,4 @@ globs:
 alwaysApply: true
 ---
 
-Prefer using Count > 0 rather than using Any() when checking if a list is not empty.
+Prefer using Count > 0 rather than using Any() when checking if a List is not empty.

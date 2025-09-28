@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Geometries;
 
 namespace TaktyxAPI.Data.Entities
 {
@@ -28,6 +29,12 @@ namespace TaktyxAPI.Data.Entities
         [Required]
         [MaxLength(50)]
         public string Role { get; set; } = "User"; // Default role
+
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
+        [Column(TypeName = "geography")]
+        public Point? Location { get; set; }
 
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiresAt { get; set; }
