@@ -67,8 +67,14 @@ namespace TaktyxAPI.DTO
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
-        // For MultiSelect and Dropdown field types
-        public List<string>? MultiSelectChoices { get; set; }
-        public List<string>? DropdownChoices { get; set; }
+        // For Dropdown, RadioSelection, and MultiSelect field types
+        public List<SkillFieldChoiceResponseDto>? Choices { get; set; }
+    }
+
+    public class SkillFieldChoiceResponseDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string MachineName { get; set; } = string.Empty;
     }
 }

@@ -57,7 +57,7 @@ namespace TaktyxAPI.Api.Controllers
                         return BadRequest($"Duplicate field machine name '{field.MachineName}' within the skill.");
                     }
                 }
-                
+
                 var skill = new Skill
                 {
                     Name = request.Name,
@@ -92,7 +92,7 @@ namespace TaktyxAPI.Api.Controllers
                     };
 
                     skillFields.Add(skillField);
-                    
+
                     // Add dropdown and multi-select choices
                     if (fieldType is FieldType.MultiSelect or FieldType.RadioSelection or FieldType.Dropdown && fieldDto.SkillFieldChoices.Count > 0)
                     {
@@ -101,7 +101,7 @@ namespace TaktyxAPI.Api.Controllers
                             if (await _dbContext.SkillFieldChoices.AnyAsync(sfc =>
                                     sfc.MachineName.Equals(fieldChoice.MachineName)))
                             {
-                                continue;    
+                                continue;
                             }
 
                             _dbContext.SkillFieldChoices.Add(new SkillFieldChoice
@@ -110,7 +110,7 @@ namespace TaktyxAPI.Api.Controllers
                                 MachineName = fieldChoice.MachineName,
                                 SkillField = skillField
                             });
-                        }    
+                        }
                     }
                 }
 
@@ -137,6 +137,7 @@ namespace TaktyxAPI.Api.Controllers
         {
             var skill = await _dbContext.Skills
                 .Include(s => s.SkillFields)
+                .ThenInclude(sf => sf.SkillFieldChoices)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (skill == null)
@@ -154,6 +155,7 @@ namespace TaktyxAPI.Api.Controllers
         {
             var skills = await _dbContext.Skills
                 .Include(s => s.SkillFields)
+                .ThenInclude(sf => sf.SkillFieldChoices)
                 .ToListAsync();
 
             var responseDtos = skills.Select(s => MapToResponseDto(s, s.SkillFields.ToList())).ToList();
@@ -222,6 +224,14 @@ namespace TaktyxAPI.Api.Controllers
                     DefaultValue = sf.DefaultValue,
                     CreatedAt = sf.CreatedAt,
                     UpdatedAt = sf.UpdatedAt,
+                    Choices = sf.FieldType is FieldType.Dropdown or FieldType.RadioSelection or FieldType.MultiSelect
+                        ? sf.SkillFieldChoices?.Select(sfc => new SkillFieldChoiceResponseDto
+                        {
+                            Id = sfc.Id,
+                            Name = sfc.Name,
+                            MachineName = sfc.MachineName
+                        }).ToList()
+                        : null
                 }).ToList()
             };
         }
