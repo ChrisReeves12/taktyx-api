@@ -17,13 +17,15 @@ namespace TaktyxAPI.Api.Controllers
         private readonly TaktyxDbContext _dbContext;
         private readonly IPasswordService _passwordService;
         private readonly IUserRepository _userRepository;
+        private readonly IRouteLocationService _locationService;
 
-        public UsersController(TaktyxDbContext dbContext, IPasswordService passwordService, 
+        public UsersController(TaktyxDbContext dbContext, IPasswordService passwordService, IRouteLocationService locationService,
             IUserRepository userRepository)
         {
             _dbContext = dbContext;
             _passwordService = passwordService;
             _userRepository = userRepository;
+            _locationService = locationService;
         }
 
         [HttpGet("exists")]
@@ -95,6 +97,8 @@ namespace TaktyxAPI.Api.Controllers
         [Authorize]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
+            await _locationService.GetRouteDistanceMatrix(0, 0, [new LatLngDto { Latitude = 0, Longitude = 0 }]);
+            
             var userId = this.GetCurrentUserId();
             if (userId == null)
             {

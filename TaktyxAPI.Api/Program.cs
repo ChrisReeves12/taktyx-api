@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,25 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IPasswordService, BCryptPasswordService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Configure HttpClient with connection pooling
+builder.Services.AddHttpClient<IRouteLocationService, GoogleRouteLocationService>(client =>
+{
+    // Configure default headers, timeout, etc. if needed
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var maxConnections = builder.Configuration.GetValue<int>("HttpClientMaxConnections", 100);
+
+    return new HttpClientHandler
+    {
+        MaxConnectionsPerServer = maxConnections,
+        AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
+        UseProxy = false,
+        UseCookies = false
+    };
+});
 
 var jwtSettings = new JwtSettingsDto();
 builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
