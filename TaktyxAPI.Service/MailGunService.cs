@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using TaktyxAPI.Service.Interfaces;
+using System.Security.Cryptography;
 
 namespace TaktyxAPI.Service;
 
@@ -11,12 +12,14 @@ public class MailGunService : IMailService
     private readonly string _apiKey;
     private readonly string _mailDomain;
     private readonly HttpClient _httpClient;
+    private readonly string _appName;
 
     public MailGunService(IConfiguration configuration, HttpClient httpClient)
     {
         _apiKey = configuration.GetValue<string>("MailGunAPIKey") ?? string.Empty;
         _mailDomain = configuration.GetValue<string>("MailGunDomain") ?? string.Empty;
         _httpClient = httpClient;
+        _appName = configuration.GetValue<string>("AppName") ?? string.Empty;
     }
 
     public async Task SendMailAsync(string[] recipients, string subject, string message, string? from = null)
@@ -67,5 +70,29 @@ public class MailGunService : IMailService
             var error = await response.Content.ReadAsStringAsync();
             throw new HttpRequestException($"Mailgun request failed: {(int)response.StatusCode} {response.ReasonPhrase} - {error}");
         }
+    }
+
+    public string GenerateOtp(int numOfDigits)
+    {
+        if (numOfDigits <= 0 || numOfDigits > 18)
+        {
+            throw new ArgumentOutOfRangeException(nameof(numOfDigits), "numOfDigits must be between 1 and 18");
+        }
+
+        using var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[8];
+        rng.GetBytes(bytes);
+        var value = BitConverter.ToUInt64(bytes, 0);
+
+        var modulus = (ulong)Math.Pow(10, numOfDigits);
+        var number = value % modulus;
+        return number.ToString($"D{numOfDigits}");
+    }
+
+    public async Task SendPasswordResetOtpAsync(string email, string otp, int expiresInMinutes)
+    {
+        var subject = $"Your {_appName} password reset code";
+        var html = $"<p>Your password reset code is: <strong>{otp}</strong></p><p>This code expires in {expiresInMinutes} minutes.</p>";
+        await SendMailAsync([email], subject, html);
     }
 }

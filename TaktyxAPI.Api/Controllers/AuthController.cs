@@ -121,12 +121,8 @@ public class AuthController : ControllerBase
             return Ok();
         }
 
-        // Generate 6-digit OTP
-        var rng = RandomNumberGenerator.Create();
-        var bytes = new byte[4];
-        rng.GetBytes(bytes);
-        var number = BitConverter.ToUInt32(bytes, 0) % 1000000;
-        var otp = number.ToString("D6");
+        // Generate 6-digit OTP via mail service
+        var otp = _mailService.GenerateOtp(6);
 
         user.PasswordResetCode = otp;
         user.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(_passwordResetExpiryMin);
@@ -135,10 +131,7 @@ public class AuthController : ControllerBase
 
         await _userRepository.UpdateAsync(user);
 
-        var subject = "Your Taktyx password reset code";
-        var html = $"<p>Your password reset code is: <strong>{otp}</strong></p><p>This code expires in {_passwordResetExpiryMin} minutes.</p>";
-
-        await _mailService.SendMailAsync(new[] { user.Email }, subject, html);
+        await _mailService.SendPasswordResetOtpAsync(user.Email, otp, _passwordResetExpiryMin);
 
         return Ok();
     }
