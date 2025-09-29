@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using TaktyxAPI.Data.Data;
 using TaktyxAPI.DTO;
 using TaktyxAPI.Service.Interfaces;
@@ -13,12 +14,19 @@ public class AuthController : ControllerBase
     private readonly IAuthTokenService _authTokenService;
     private readonly IPasswordService _passwordService;
     private readonly TaktyxDbContext _dbContext;
+    private readonly IUserRepository _userRepository;
+    private readonly IMailService _mailService;
+    private readonly int _passwordResetExpiryMin;
 
-    public AuthController(IAuthTokenService authTokenService, IPasswordService passwordService, TaktyxDbContext dbContext)
+    public AuthController(IAuthTokenService authTokenService, IPasswordService passwordService,
+     IConfiguration configuration, TaktyxDbContext dbContext, IMailService mailService, IUserRepository userRepository)
     {
         _authTokenService = authTokenService;
         _passwordService = passwordService;
         _dbContext = dbContext;
+        _mailService = mailService;
+        _userRepository = userRepository;
+        _passwordResetExpiryMin = configuration.GetValue<int>("PasswordResetExpiryMin");
     }
 
     [HttpPost]
@@ -93,5 +101,112 @@ public class AuthController : ControllerBase
             RefreshTokenExpiresAt = refreshTokenResponse.ExpiresAt,
             TokenExpiresAt = tokenResponse.ExpiresAt
         });
+    }
+
+    [HttpPost("password-reset/otp")]
+    public async Task<ActionResult> SendPasswordResetRequest([FromBody] SendPasswordResetRequestDto request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var email = request.Email.ToLower().Trim();
+        var user = await _userRepository.GetByEmailAsync(email);
+
+        // For security, do not reveal existence. Still do best-effort mail for existing user.
+        if (user == null)
+        {
+            // Return 200 OK to avoid user enumeration
+            return Ok();
+        }
+
+        // Generate 6-digit OTP
+        var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[4];
+        rng.GetBytes(bytes);
+        var number = BitConverter.ToUInt32(bytes, 0) % 1000000;
+        var otp = number.ToString("D6");
+
+        user.PasswordResetCode = otp;
+        user.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(_passwordResetExpiryMin);
+        user.PasswordResetAttempts = 0;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+
+        var subject = "Your Taktyx password reset code";
+        var html = $"<p>Your password reset code is: <strong>{otp}</strong></p><p>This code expires in {_passwordResetExpiryMin} minutes.</p>";
+
+        await _mailService.SendMailAsync(new[] { user.Email }, subject, html);
+
+        return Ok();
+    }
+
+    [HttpPost("password-reset")]
+    public async Task<ActionResult> ResetUserPassword([FromBody] ResetUserPasswordDto request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        if (!request.Password.Equals(request.ConfirmPassword))
+        {
+            return BadRequest("Password and confirmation password do not match");
+        }
+
+        var email = request.Email.ToLower().Trim();
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        if (string.IsNullOrEmpty(user.PasswordResetCode) || user.PasswordResetCodeExpiresAt == null)
+        {
+            return Unauthorized();
+        }
+
+        if (DateTime.UtcNow > user.PasswordResetCodeExpiresAt)
+        {
+            user.PasswordResetCode = null;
+            user.PasswordResetCodeExpiresAt = null;
+            user.PasswordResetAttempts = null;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
+            return Unauthorized("Password reset code expired. Please request a new code.");
+        }
+
+        var attempts = user.PasswordResetAttempts ?? 0;
+        if (!string.Equals(user.PasswordResetCode, request.PasswordResetCode))
+        {
+            attempts += 1;
+            if (attempts >= 3)
+            {
+                user.PasswordResetCode = null;
+                user.PasswordResetCodeExpiresAt = null;
+                user.PasswordResetAttempts = null;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _userRepository.UpdateAsync(user);
+                return Unauthorized("Too many invalid attempts. Please request a new code.");
+            }
+
+            user.PasswordResetAttempts = attempts;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
+            var remaining = 3 - attempts;
+            return Unauthorized($"Invalid code. {remaining} attempt(s) remaining.");
+        }
+
+        // Valid code
+        user.Password = _passwordService.HashPassword(request.Password);
+        user.PasswordResetCode = null;
+        user.PasswordResetCodeExpiresAt = null;
+        user.PasswordResetAttempts = null;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+
+        return Ok();
     }
 }

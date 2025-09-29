@@ -44,5 +44,11 @@ namespace TaktyxAPI.Data.Entities
 
         // Navigation properties
         public virtual ICollection<UserSkill> UserSkills { get; set; } = new List<UserSkill>();
+
+        // Password reset
+        [MaxLength(6)]
+        public string? PasswordResetCode { get; set; }
+        public DateTime? PasswordResetCodeExpiresAt { get; set; }
+        public int? PasswordResetAttempts { get; set; }
     }
 }

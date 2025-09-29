@@ -46,6 +46,24 @@ builder.Services.AddHttpClient<IRouteLocationService, GoogleRouteLocationService
     };
 });
 
+// Mail service (Mailgun)
+builder.Services.AddHttpClient<IMailService, MailGunService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var maxConnections = builder.Configuration.GetValue<int>("HttpClientMaxConnections", 100);
+
+    return new HttpClientHandler
+    {
+        MaxConnectionsPerServer = maxConnections,
+        AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
+        UseProxy = false,
+        UseCookies = false
+    };
+});
+
 var jwtSettings = new JwtSettingsDto();
 builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
 builder.Services.AddScoped<IAuthTokenService>(_ => new JwtTokenService(jwtSettings));
